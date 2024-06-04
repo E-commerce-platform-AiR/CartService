@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -6,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CartService.Migrations
 {
     /// <inheritdoc />
-    public partial class initmigration : Migration
+    public partial class Init_migration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,15 +17,14 @@ namespace CartService.Migrations
                 name: "cart_entity",
                 columns: table => new
                 {
-                    cart_id = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<int>(type: "integer", nullable: false),
-                    product_id = table.Column<int>(type: "integer", nullable: false),
-                    quantity = table.Column<int>(type: "integer", nullable: false)
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    offers = table.Column<List<long>>(type: "bigint[]", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_cart_entity", x => x.cart_id);
+                    table.PrimaryKey("PK_cart_entity", x => x.Id);
                 });
         }
 
