@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using CartService.Database.Entities;
-using CartService.Database.Repositories.Interfaces;
-using CartService.Models;
 using CartService.Models.OfferServiceModels;
 using CartService.Services.Interfaces;
-using Refit;
 
 namespace CartService.Controllers;
 
@@ -18,36 +15,52 @@ public class CartController : ControllerBase
     {
         _cartService = cartService;
     }
-
-    // [HttpGet("{userId}")]
-    // public async Task<ActionResult<List<Offer>>> GetOffersInCart(Guid userId)
-    // {
-    //    
-    // }
-    //
-    // [HttpPost]
-    // public async Task<ActionResult<CartEntity>> CreateCart(Guid userId)
-    // {
-    //     
-    // }
-    //
-    // [HttpPatch]
-    // public async Task<ActionResult<CartEntity>> UpdateCartItem(CartEntity cartEntity)
-    // {
-    //     
-    // }
-    //
-    // [HttpDelete("{userId}")]
-    // public async Task<ActionResult<bool>> RemoveItemFromCart(Guid userId, long offerId)
-    // {
-    //     
-    // }
-    [HttpPost]
-    public async Task<ActionResult<List<OffersResponse>>> GetOffersByIds(List<long> offerIds)
+    
+    [HttpPost("{userId:guid}")]
+    public async Task<ActionResult<CartEntity>> CreateCart(Guid userId)
     {
         try
         {
-            return Ok(await _cartService.GetOffersByIds(offerIds));
+            return Ok(await _cartService.CreateCart(userId));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
+        }
+    }
+    
+    [HttpPatch("{userId:guid}")]
+    public async Task<ActionResult<bool>> AddToCart(Guid userId, long offerId)
+    {
+        try
+        {
+            return Ok(await _cartService.AddToCart(userId, offerId));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
+        }
+    }
+    
+    [HttpGet("offers")]
+    public async Task<ActionResult<List<OffersResponse>>> GetOffersByIds([FromQuery] List<long> offerId)
+    {
+        try
+        {
+            return Ok(await _cartService.GetOffersByIds(offerId));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
+        }
+    }
+
+    [HttpDelete("{userId:guid}")]
+    public async Task<ActionResult<bool>> RemoveFromCart(Guid userId, long offerId)
+    {
+        try
+        {
+            return Ok(await _cartService.RemoveFromCart(userId, offerId));
         }
         catch (Exception ex)
         {

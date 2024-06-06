@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using CartService.ApiReferences;
-using CartService.ApiReferences.RequestBodies;
+﻿using CartService.ApiReferences;
 using CartService.Database.Entities;
 using CartService.Database.Repositories.Interfaces;
-using CartService.Models;
 using CartService.Models.OfferServiceModels;
 using CartService.Services.Interfaces;
 
@@ -21,25 +18,27 @@ public class CartService : ICartService
     }
 
 
-    // public async Task<IEnumerable<Offer>> GetOffersInCart(Guid userId)
-    // {
-    //     
-    // }
-    //
-    // public async Task<CartEntity> CreateCart(Guid userId)
-    // {
-    //     
-    // }
-    //
-    // public async Task<CartEntity> UpdateCartItem(CartEntity cartEntity)
-    // {
-    //     
-    // }
-    //
-    // public async Task<bool> RemoveItemFromCart(Guid userId, long offerId)
-    // {
-    //     
-    // }
+    public async Task<bool> AddToCart(Guid userId, long offerId)
+    {
+        await _cartRepository.AddToCart(userId, offerId);
+        await _cartRepository.SaveAsync();
+        return true;
+    }
+   
+    public async Task<CartEntity> CreateCart(Guid userId)
+    {
+        CartEntity cartEntity = new CartEntity(userId);
+        await _cartRepository.InsertCartAsync(cartEntity);
+        await _cartRepository.SaveAsync();
+        return cartEntity;
+    }
+    
+    public async Task<bool> RemoveFromCart(Guid userId, long offerId)
+    {
+        await _cartRepository.RemoveFromCart(userId, offerId);
+        await _cartRepository.SaveAsync();
+        return true;
+    }
 
     public async Task<List<OffersResponse>> GetOffersByIds(List<long> offerIds)
     {
