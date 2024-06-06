@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using CartService.Database.Entities;
+using CartService.Models;
 using CartService.Models.OfferServiceModels;
 using CartService.Services.Interfaces;
 
@@ -15,6 +16,21 @@ public class CartController : ControllerBase
     {
         _cartService = cartService;
     }
+
+    [HttpGet("user/{userId:guid}")]
+    public async Task<ActionResult<CartResponse>> GetCart(Guid userId)
+    {
+        try
+        {
+            return Ok(await _cartService.GetCart(userId));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
+        }
+    }
+    
+    
     
     [HttpPost("{userId:guid}")]
     public async Task<ActionResult<CartEntity>> CreateCart(Guid userId)
@@ -35,19 +51,6 @@ public class CartController : ControllerBase
         try
         {
             return Ok(await _cartService.AddToCart(userId, offerId));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex);
-        }
-    }
-    
-    [HttpGet("offers")]
-    public async Task<ActionResult<List<OffersResponse>>> GetOffersByIds([FromQuery] List<long> offerId)
-    {
-        try
-        {
-            return Ok(await _cartService.GetOffersByIds(offerId));
         }
         catch (Exception ex)
         {

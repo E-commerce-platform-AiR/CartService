@@ -1,6 +1,7 @@
 ﻿using CartService.ApiReferences;
 using CartService.Database.Entities;
 using CartService.Database.Repositories.Interfaces;
+using CartService.Models;
 using CartService.Models.OfferServiceModels;
 using CartService.Services.Interfaces;
 
@@ -17,10 +18,23 @@ public class CartService : ICartService
         _offerApiReference = offerApiReference;
     }
 
+    public async Task<CartResponse> GetCart(Guid userId)
+    {
+        var cartEntity = await _cartRepository.GetCartByUserId(userId);
+        if (cartEntity.Offers != null)
+        {
+            var offers = await _offerApiReference.GetOffersByIds(cartEntity.Offers);
+            CartResponse cartResponse = new CartResponse(offers);
+            return cartResponse;
+        }
 
+        return new CartResponse();
+    }
+    
     public async Task<bool> AddToCart(Guid userId, long offerId)
     {
-        await _cartRepository.AddToCart(userId, offerId);
+        var cart = await _cartRepository.GetCartByUserId(userId);
+        cart.Offers?.Add(offerId);
         await _cartRepository.SaveAsync();
         return true;
     }
@@ -35,15 +49,9 @@ public class CartService : ICartService
     
     public async Task<bool> RemoveFromCart(Guid userId, long offerId)
     {
-        await _cartRepository.RemoveFromCart(userId, offerId);
+        var cart = await _cartRepository.GetCartByUserId(userId);
+        cart.Offers?.Remove(offerId);
         await _cartRepository.SaveAsync();
         return true;
-    }
-
-    public async Task<List<OffersResponse>> GetOffersByIds(List<long> offerIds)
-    {
-        var response = await _offerApiReference.GetOffersByIds(offerIds);
-        return response;
-
     }
 }

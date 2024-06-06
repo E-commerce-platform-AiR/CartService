@@ -1,6 +1,7 @@
 ﻿using CartService.Database.DbContext;
 using CartService.Database.Entities;
 using CartService.Database.Repositories.Interfaces;
+using CartService.Models.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace CartService.Database.Repositories
@@ -12,25 +13,27 @@ namespace CartService.Database.Repositories
         {
             _dbContext = dbContext;
         }
-        public async Task<bool> AddToCart(Guid userId, long offerId)
-        {
-            var cart = await _dbContext.Carts.FirstOrDefaultAsync(x => x.UserId == userId);
-            if (cart == null) return false;
-            cart.Offers?.Add(offerId);
-            return true;
-        }
         public async Task InsertCartAsync(CartEntity cartEntity)
         {
+            var result = await _dbContext.Carts.AnyAsync(x => x.UserId == cartEntity.UserId);
+            if (result)
+            {
+                throw new CartAlreadyExist();
+            }
             await _dbContext.Carts.AddAsync(cartEntity);
         }
 
-        public async Task<bool> RemoveFromCart(Guid userId, long offerId)
+        public async Task<CartEntity> GetCartByUserId(Guid userId)
         {
             var cart = await _dbContext.Carts.FirstOrDefaultAsync(x => x.UserId == userId);
-            if (cart == null) return false;
-            cart.Offers?.Remove(offerId);
-            return true;
+            if (cart == null)
+            {
+                throw new CartNotFound();
+            }
+
+            return cart;
         }
+        
         public async Task SaveAsync()
         {
             await _dbContext.SaveChangesAsync();
