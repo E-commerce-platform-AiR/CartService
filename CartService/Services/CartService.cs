@@ -30,6 +30,18 @@ public class CartService : ICartService
 
         return new CartResponse();
     }
+
+    public async Task<int> CountItemsInCart(Guid userId)
+    {
+        var cart = await _cartRepository.GetCartByUserId(userId);
+        var numberOfItemsInCart = cart.Offers?.Count;
+        if (numberOfItemsInCart == null)
+        {
+            return 0;
+        }
+        
+        return (int)numberOfItemsInCart;
+    }
     
     public async Task<bool> AddToCart(Guid userId, long offerId)
     {

@@ -17,7 +17,7 @@ public class CartController : ControllerBase
         _cartService = cartService;
     }
 
-    [HttpGet("user/{userId:guid}")]
+    [HttpGet("{userId:guid}")]
     public async Task<ActionResult<CartResponse>> GetCart(Guid userId)
     {
         try
@@ -30,6 +30,18 @@ public class CartController : ControllerBase
         }
     }
     
+    [HttpGet("items/{userId:guid}")]
+    public async Task<ActionResult<int>> CountItamsInCart(Guid userId)
+    {
+        try
+        {
+            return Ok(await _cartService.CountItemsInCart(userId));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
+        }
+    }
     
     
     [HttpPost("{userId:guid}")]
